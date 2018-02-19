@@ -16,4 +16,4 @@ Architecture
 
 Before installing the gpu solution
 
-![Architecture](architecture.png/architecture.png)
+![Architecture](misc/architecture.png)
