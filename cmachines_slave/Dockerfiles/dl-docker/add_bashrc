@@ -1,0 +1,10 @@
+export CUDNN_VERSION=5.1.10
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:
+export LD_LIBRARY_PATH=/root/torch/install/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+export PATH=/root/torch/install/bin:/root/caffe/build/tools:/root/caffe/python:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export CUDA_PKG_VERSION=8-0=8.0.61-1
+export CUDA_VERSION=8.0.61
+export PYCAFFE_ROOT=/root/caffe/python
+export DYLD_LIBRARY_PATH=/root/torch/install/lib:
+export PYTHONPATH=/root/caffe/python:
+export CAFFE_ROOT=/root/caffe

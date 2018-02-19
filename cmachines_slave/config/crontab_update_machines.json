@@ -1,0 +1,17 @@
+{
+    "web_service_root": "http://45.79.137.136/users/ws",
+    "web_service_login": "admin_login_on_django_webservice",
+    "web_service_password": "admin_password",
+    "public_server_name": "ip_address_of_proxy_server",
+    "public_server_login": "root",
+    "public_server_cmachines_dir": "/root/workspace/cmachines",
+    "public_server_available_ports": [40000, 50000],
+    "local_available_ports": [40000, 50000],
+    "local_data_dir": "/home/chongdata/cmachine_data_dir",
+    "local_port_manager_file": "local_port.json",
+    "remote_port_manager_file": "remote_port.json",
+    "machine_manager_file": "machine_manager.json",
+    "bridge_manager_file": "bridge_manager_file.json",
+    "hdd_disk_dir": "/hdd/containers",
+    "bridge_password": "connection_password" 
+}

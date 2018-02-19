@@ -1,0 +1,110 @@
+{% extends "users/base_generic.html" %}
+
+
+{% block title %} 使用说明 {% endblock %}
+
+{% block title2 %} 使用说明 {% endblock %}
+
+{% block content %} 
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        免费用户与付费用户
+    </div>
+    <div class="panel-body">
+        <p><b>重要通告，三月份搬家（服务器在自己家）,预计3月5日开始不能使用，尽量4月底前在新家恢复，期间不扣费，对此造成任何不便表示抱歉。</b></p>
+	<p>用户注册后，默认为免费用户。免费用户有一定的金额，这些金额可以创建一定配置的机器</p>
+        <p>如需要成为付费用户，首次充值最少20元，然后没有限制充值多少钱。</p>
+        <p>付费用户拥有更加多的配置，譬如可以使用4000MiB显存，更多的内存。</p>
+        <p><b>不管付费免费，不能拿机器挖矿，譬如比特矿</b></p>
+        <p><a href="https://item.taobao.com/item.htm?id=541737501166&toSite=main#detail">充值地址</a> (充值前请往 GPU主机 查看GPU显存剩余多少，是否满足你的需求，然后再充值，需要备注注册的邮箱。) </p>
+        <p>店主在法国生活工作，人工客服时间一般在北京时间16:00- 次日4:00</p>
+
+    </div>
+    <div class="panel-footer">
+        2017-06-10
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        技术客服支持
+    </div>
+    <div class="panel-body">
+        <p>请发邮件到 contact@chongdata.com , 24小时内会有人工回复。</p>
+    </div>
+    <div class="panel-footer">
+        2017-06-10
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        如何限制程序的GPU显存使用
+    </div>
+    <div class="panel-body">
+        <p><a href="https://stackoverflow.com/questions/34199233/how-to-prevent-tensorflow-from-allocating-the-totality-of-a-gpu-memory">tensorflow 限制 </a> </p>
+        <p><a href="https://stackoverflow.com/questions/39544441/is-there-any-ways-to-reduce-the-gpu-memory-caffe-use">caffe 限制 </a> </p>
+    </div>
+    <div class="panel-footer">
+        2017-06-10
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        文档
+    </div>
+    <div class="panel-body">
+        <p><a href="http://chongdata.com/articles/?p=599">通过ssh远程访问Jupyter Notebook</a> </p>
+        <p><a href="http://chongdata.com/articles/?p=611">如何通过ssh链接服务器和传输数据（Linux和Windows）</a> </p>
+    </div>
+    <div class="panel-footer">
+        2017-06-10
+    </div>
+</div>
+
+{% if credit_page %}
+
+<div class="panel panel-default">
+
+<div class="panel-heading">
+User credit
+</div>
+
+<div class="panel-body">
+
+
+<form method="post">
+{% csrf_token %}
+
+<div class="form-group">
+<label for="email">email</label>
+<input class="form-control" name="email" placeholder="email">
+</div>
+
+<div class="form-group">
+<label for="money">money</label>
+<input class="form-control" name="money" placeholder="0">
+</div>
+
+<div class="form-group">
+<label for="description">description</label>
+<input class="form-control" name="description" placeholder="description">
+</div>
+
+<div class="form-group">
+<button type="submit" class="btn btn-default">submit</button>
+</div>
+
+</form>
+
+<p>{{error_message}}</p>
+
+</div>
+</div>
+
+{% endif  %}
+
+{% endblock %}

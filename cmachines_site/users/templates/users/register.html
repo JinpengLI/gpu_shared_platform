@@ -1,0 +1,35 @@
+{% extends "users/base_generic.html" %}
+
+{% block title %} 用户注册或忘记密码 {% endblock %}
+
+{% block title2 %} 用户注册或忘记密码 {% endblock %}
+
+{% block content %}
+    <div class="container">
+      <form class="form-signin" action="register" method="post">
+        {% csrf_token %}
+        <h2 class="form-signin-heading">电子邮箱</h2>
+        <p>为了避免恶意注册,暂时只允许以下邮箱注册:</p>
+        <p>*@qq.com</p>
+        <label for="inputEmail" class="sr-only">{{useremail}}</label>
+        <input type="email" name="inputEmail", id="inputEmail" class="form-control" placeholder="邮箱(系统发送密码到此)" required autofocus>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">申请帐号</button>
+      </form>
+    <p class="bg-warning">{{error_message}}</p>
+    <p class="bg-warning">提供GPU服务，支持 热 修改CPU个数，内存，显存。动态定制你的计算，更加节省计算成本。首次注册赠送50元试用，每1G显存最低8元一天。</p>
+    <p class="bg-warning">由于账号发太多邮件了，所以一般自动确认为垃圾邮件，手机可能是没有提示的，所以请用网页版打开你的qq邮箱（mail.qq.com），查查垃圾邮箱有没有收到账号密码，如果再没有收到账号请联系contact@chongdata.com</p>
+    </div> <!-- /container -->
+          
+{% endblock %}
+
+{% block side_menu %}
+<li>
+    <a href="register"><i class="fa fa-user fa-fw"></i>注册或忘记密码</a>
+</li>
+<li>
+    <a href="signin"><i class="fa fa-user fa-fw"></i>登录</a>
+</li>
+{% endblock %}
+
+{% block top_links %}
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "users/base_generic.html" %}
+
+{% block title %} 充值消费记录 {% endblock %}
+
+{% block title2 %} 充值消费记录 {% endblock %}
+
+{% block content %}
+
+
+{% if physical_machines %}
+{% for physical_machine in physical_machines %}
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+     <i class="fa fa-bar-chart-o fa-fw"></i>
+     基于显卡 {{physical_machine.name}} 机器创建
+  </div>
+  <div class="panel-body">
+     <form>
+       <div class="form-group">
+         <label for="cpu_cores">CPU数量</label>
+         <select class="form-control" id="cpu_cores" name="cpu_cores" onchange="estimate_price()">
+           <option>1</option>
+           <option>2</option>
+           <option>3</option>
+           <option>4</option>
+         </select>
+         <label for="mem">内存(MB)</label>
+         <select class="form-control" id="mem" name="mem" onchange="estimate_price()">
+           <option>1000</option>
+           <option>2000</option>
+           <option>3000</option>
+           <option>4000</option>
+         </select>
+         <label for="gpu_mem">显存(MB)</label>
+         <select class="form-control" id="gpu_mem" name="gpu_mem" onchange="estimate_price()">
+           <option>1000</option>
+           <option>2000</option>
+           <option>3000</option>
+           <option>4000</option>
+         </select>
+         <label for="disk_size">硬盘(G)</label>
+         <select class="form-control" id="disk_size" name="disk_size" onchange="estimate_price()">
+           <option>20</option>
+           <option>30</option>
+           <option>40</option>
+           <option>50</option>
+           <option>100</option>
+         </select>
+       </div>
+      <label for="price_input">每天价格(系统每天自动扣费,直到用户余额为0,主机会被自动删除)</label>
+      <div class="form-group input-group"><span class="input-group-addon">¥</span><input type="text" class="form-control" readonly="on" autocomplete="off" id="price_input"><span class="input-group-addon">.00元</span></div>
+      <button type="submit" class="btn btn-default">创建</button>
+     </form>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% endblock %}
+
+

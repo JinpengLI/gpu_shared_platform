@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import json
+from dateutil import parser
+from datetime import datetime
+from cmachines_slave.utils import make_port_mapping_from_remote_to_local_port
+from cmachines_slave.port_manager import PortManager
+from cmachines_slave.utils import get_default_settings
+from cmachines_slave.client import Client
+from cmachines_slave.machine_manager import MachineManager
+from cmachines_slave.bridge_manager import BridgeManager
+from cmachines_slave.hdd_disk_manager import HddDiskManager
+
+#########################################
+#
+#  1. Build a bridge and
+#  2. build local machine
+#
+########################################
+
+
+if __name__ == "__main__":
+    settings = get_default_settings()
+    #print("settings=", settings)
+    data_dir = settings["local_data_dir"]
+    public_server_name = settings["public_server_name"]
+    public_server_login = settings["public_server_login"]
+    bridge_password = settings["bridge_password"]
+    hdd_disk_dir = settings["hdd_disk_dir"]
+
+    if not os.path.isdir(data_dir):
+        os.makedirs(data_dir)
+
+    can_start = True
+    max_lock_minutes = 10
+
+    lock_file_path = os.path.join(data_dir, "start.lock")
+    if os.path.isfile(lock_file_path):
+        lock_time = json.load(open(lock_file_path, "r"))["time"]
+        lock_time = parser.parse(lock_time)
+        diff_time = datetime.now() - lock_time
+        if (diff_time.seconds/60) < max_lock_minutes:
+            exit(0)
+    lock_data = {}
+    lock_data["time"] = datetime.now().isoformat()
+    json.dump(lock_data, open(lock_file_path, "w+"))
+
+    ## check remote web server for local info
+    web_service_root = settings["web_service_root"]
+    web_service_login = settings["web_service_login"]
+    web_service_password = settings["web_service_password"]
+
+    public_server_available_ports = settings["public_server_available_ports"]
+    public_server_available_ports = range(public_server_available_ports[0], public_server_available_ports[1])
+
+    local_available_ports = settings["local_available_ports"]
+    local_available_ports = range(local_available_ports[0], local_available_ports[1])
+
+    local_port_manager_file = os.path.join(data_dir, settings["local_port_manager_file"])
+    remote_port_manager_file = os.path.join(data_dir, settings["remote_port_manager_file"])
+    machine_manager_file = os.path.join(data_dir, settings["machine_manager_file"])
+    bridge_manager_file = os.path.join(data_dir, settings["bridge_manager_file"])
+
+    local_port_manager = PortManager(
+        local_available_ports, local_port_manager_file)
+
+    remote_port_manager = PortManager(
+        public_server_available_ports, remote_port_manager_file)
+
+    hdd_disk_manager = HddDiskManager(hdd_disk_dir)
+    client = Client(
+                      base_url=web_service_root,
+                      login=web_service_login,
+                      password=web_service_password,
+                   )
+
+    machine_manager = MachineManager(
+        machine_manager_file, local_port_manager, client, hdd_disk_manager)
+
+
+    bridge_manager = BridgeManager(
+                     mem_file=bridge_manager_file,
+                     remote_port_manager=remote_port_manager,
+                     local_port_manager=local_port_manager,
+                     machine_manager=machine_manager,
+                     client=client,
+                     remote_login=public_server_login,
+                     remote_host=public_server_name,
+                     bridge_password=bridge_password,
+                 )
+
+    vm_json = client.get_virtual_machines()
+    machine_manager.update_machines_from_site(vm_json)
+    bridge_manager.update()
+
+    if os.path.isfile(lock_file_path):
+        os.remove(lock_file_path)

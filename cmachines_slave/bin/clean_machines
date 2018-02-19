@@ -1,0 +1,120 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import json
+import docker
+from dateutil import parser
+from datetime import datetime
+from cmachines_slave.utils import make_port_mapping_from_remote_to_local_port
+from cmachines_slave.port_manager import PortManager
+from cmachines_slave.utils import get_default_settings
+from cmachines_slave.client import Client
+from cmachines_slave.machine_manager import MachineManager
+from cmachines_slave.bridge_manager import BridgeManager
+from cmachines_slave.hdd_disk_manager import HddDiskManager
+
+#########################################
+#
+#  1. Build a bridge and
+#  2. build local machine
+#
+########################################
+
+
+if __name__ == "__main__":
+    settings = get_default_settings()
+    #print("settings=", settings)
+    data_dir = settings["local_data_dir"]
+    public_server_name = settings["public_server_name"]
+    public_server_login = settings["public_server_login"]
+    bridge_password = settings["bridge_password"]
+    hdd_disk_dir = settings["hdd_disk_dir"]
+
+    if not os.path.isdir(data_dir):
+        os.makedirs(data_dir)
+
+    ## check remote web server for local info
+    web_service_root = settings["web_service_root"]
+    web_service_login = settings["web_service_login"]
+    web_service_password = settings["web_service_password"]
+
+    public_server_available_ports = settings["public_server_available_ports"]
+    public_server_available_ports = range(public_server_available_ports[0], public_server_available_ports[1])
+
+    local_available_ports = settings["local_available_ports"]
+    local_available_ports = range(local_available_ports[0], local_available_ports[1])
+
+    local_port_manager_file = os.path.join(data_dir, settings["local_port_manager_file"])
+    remote_port_manager_file = os.path.join(data_dir, settings["remote_port_manager_file"])
+    machine_manager_file = os.path.join(data_dir, settings["machine_manager_file"])
+    bridge_manager_file = os.path.join(data_dir, settings["bridge_manager_file"])
+
+    local_port_manager = PortManager(
+        local_available_ports, local_port_manager_file)
+
+    remote_port_manager = PortManager(
+        public_server_available_ports, remote_port_manager_file)
+
+    hdd_disk_manager = HddDiskManager(hdd_disk_dir)
+    client = Client(
+                      base_url=web_service_root,
+                      login=web_service_login,
+                      password=web_service_password,
+                   )
+    client = docker.from_env()
+
+    machine_manager = MachineManager(
+        machine_manager_file, local_port_manager, client, hdd_disk_manager)
+    bridge_manager = BridgeManager(
+                     mem_file=bridge_manager_file,
+                     remote_port_manager=remote_port_manager,
+                     local_port_manager=local_port_manager,
+                     machine_manager=machine_manager,
+                     client=client,
+                     remote_login=public_server_login,
+                     remote_host=public_server_name,
+                     bridge_password=bridge_password,
+                 )
+
+    machine_manager.clean_gpu_machines()
+
+    bridge_manager.clean_bridge()
+
+    local_containers = bridge_manager.list_bridge_local_containers()
+    remote_containers = bridge_manager.list_bridge_remote_containers()
+    bridge_image_tag = u"jinpengli/docker-image-reverse-ssh-tunnel:latest"
+
+    real_local_containers = []
+    containers = client.containers.list()
+    for container in containers:
+        if len(container.image.tags) > 1:
+            raise ValueError("image tags cannot contain more than 2.")
+        if len(container.image.tags) > 0 and container.image.tags[0] == bridge_image_tag:
+            real_local_containers.append(container.id)
+    remove_local_containers = list(set(real_local_containers) - set(local_containers))
+    data = {}
+    data["bridge_image_tag"] = bridge_image_tag
+    data["remote_containers"] = str(remote_containers)
+    print("bash script to rm containers:")
+    for remove_local_container in remove_local_containers:
+        print("RM_CONTAINER=%s"%remove_local_container)
+        print("docker stop $RM_CONTAINER && docker rm $RM_CONTAINER")
+    print("\n\nrun these code on remote machine:\n\n")
+    print("""import docker
+client = docker.from_env()
+bridge_image_tag = u"{bridge_image_tag}"
+local_containers = {remote_containers}
+containers = client.containers.list()
+real_local_containers = []
+for container in containers:
+    if len(container.image.tags) > 1:
+        raise ValueError("image tags cannot contain more than 2.")
+    if container.image.tags[0] == bridge_image_tag:
+        real_local_containers.append(container.id)
+remove_local_containers = list(set(real_local_containers) - set(local_containers))
+for remove_local_container in remove_local_containers:
+    print("RM_CONTAINER=%s" % remove_local_container)    
+    print("docker stop $RM_CONTAINER && docker rm $RM_CONTAINER")
+""".format(**data))

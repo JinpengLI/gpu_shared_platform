@@ -1,0 +1,37 @@
+{% extends "users/base_generic.html" %}
+
+{% block title %} 用户登录 {% endblock %}
+
+{% block title2 %} 用户登录 {% endblock %}
+
+{% block content %}
+    <div class="container">
+      <form class="form-signin" method="post">
+        {% csrf_token %}
+        <h2 class="form-signin-heading">用户登录</h2>
+        <label for="inputEmail" class="sr-only">邮件</label>
+        <input type="email" name="inputEmail" id="inputEmail" class="form-control" placeholder="邮件" required autofocus>
+        <label for="inputPassword" class="sr-only">密码</label>
+        <input type="password" name="password" id="inputPassword" class="form-control" placeholder="密码" required>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" name="remember_me" value="remember-me"> 记住我
+          </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+      </form>
+    <p class="bg-warning">{{error_message}}</p>
+    </div> <!-- /container -->
+{% endblock %}
+
+{% block side_menu %}
+<li>
+    <a href="register"><i class="fa fa-user fa-fw"></i>注册或忘记密码</a>
+</li>
+<li>
+    <a href="signin"><i class="fa fa-user fa-fw"></i>登录</a>
+</li>
+{% endblock %}
+
+{% block top_links %}
+{% endblock %}

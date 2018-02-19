@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import json
+
+from cmachines_slave.utils import make_port_mapping_from_remote_to_local_port
+from cmachines_slave.port_manager import PortManager
+from cmachines_slave.utils import get_default_settings
+from cmachines_slave.client import Client
+from cmachines_slave.machine_manager import MachineManager
+from cmachines_slave.bridge_manager import BridgeManager
+from cmachines_slave.hdd_disk_manager import HddDiskManager
+
+#########################################
+#
+#  1. Kill processes
+#
+########################################
+
+
+if __name__ == "__main__":
+    settings = get_default_settings()
+    #print("settings=", settings)
+    data_dir = settings["local_data_dir"]
+    public_server_name = settings["public_server_name"]
+    public_server_login = settings["public_server_login"]
+    bridge_password = settings["bridge_password"]
+    hdd_disk_dir = settings["hdd_disk_dir"]
+
+    if not os.path.isdir(data_dir):
+        os.makedirs(data_dir)
+
+    ## check remote web server for local info
+    web_service_root = settings["web_service_root"]
+    web_service_login = settings["web_service_login"]
+    web_service_password = settings["web_service_password"]
+
+    public_server_available_ports = settings["public_server_available_ports"]
+    public_server_available_ports = range(public_server_available_ports[0], public_server_available_ports[1])
+
+    local_available_ports = settings["local_available_ports"]
+    local_available_ports = range(local_available_ports[0], local_available_ports[1])
+
+    local_port_manager_file = os.path.join(data_dir, settings["local_port_manager_file"])
+    remote_port_manager_file = os.path.join(data_dir, settings["remote_port_manager_file"])
+    machine_manager_file = os.path.join(data_dir, settings["machine_manager_file"])
+    bridge_manager_file = os.path.join(data_dir, settings["bridge_manager_file"])
+
+    local_port_manager = PortManager(
+        local_available_ports, local_port_manager_file)
+    remote_port_manager = PortManager(
+        public_server_available_ports, remote_port_manager_file)
+    hdd_disk_manager = HddDiskManager(hdd_disk_dir)
+    client = Client(
+                      base_url=web_service_root,
+                      login=web_service_login,
+                      password=web_service_password,
+                   )
+    machine_manager = MachineManager(
+        machine_manager_file, local_port_manager, client, hdd_disk_manager)
+    machine_manager.check_if_contain_ban_key_words()
