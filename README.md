@@ -20,8 +20,13 @@ Before installing the gpu solution, you can have a look at the architecture as s
   * Machine C: This machine is usually located at your home. It canbe behind the NAT. The installation is very complex, and the source is located in `cmachines_slave` in this project. You can read the README.md for the installation.
 ![Architecture](misc/architecture.png)
 
+Network configuration
+---------------------
+
+Since the "Machine C" will create containers on the "Machine B", you need to add the ssh pub key of "Machine C" on the "Machine B". Make sure that you can connect to the "Machine B" from "Machine C" without using the Password.
+
 Questions
 ==========
 
-If you have question, please open a ticket. If I have time, I will answer it otherwise I will leave it open. Thanks in advance.
+If you have question, please open a issue. If I have time, I will answer it otherwise I will leave it open. Sorry for opening issues since I have so much work to do, but I am motivated to create new projects. Thanks in advance.
 
